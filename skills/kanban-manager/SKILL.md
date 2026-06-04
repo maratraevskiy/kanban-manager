@@ -16,7 +16,7 @@ In this project, the Kanban board is isolated inside a `.kanban/` directory at t
 4. `.kanban/04_done/` -> Completed tasks.
 
 Each task is represented by a subfolder (e.g., `.kanban/02_progress/fix-auth-bug/`).
-Inside every task folder, keep a concise `readme.md` that describes the intended final result and records the task history.
+Inside every task folder, keep a concise `readme.md` as the task control file. It should contain only the task goal, current state, and history. Put drafts, research notes, generated content, implementation notes, and other working artifacts in separate files within the same task folder.
 
 ## ⚙️ Standard Operating Procedure
 
@@ -28,12 +28,14 @@ When interacting with tasks or the board, you MUST follow these exact steps:
 * Confirm with me once the folders are created.
 
 ### 2. Context Initialization
-* Use terminal commands (`cat`, `less`, or your file-reading tool) to read the markdown file inside the target task folder.
+* Use terminal commands (`cat`, `less`, or your file-reading tool) to read `readme.md` inside the target task folder.
+* If the task folder contains working files relevant to the request, read those too.
 * Analyze the requirements before taking any action.
 
 ### 3. Task README Format
 * Create task-related readmes as `readme.md`.
-* Keep task readmes concise and practical. Avoid long background sections unless they are needed to preserve important context.
+* Treat `readme.md` as the task control file, not as the working document.
+* Keep task readmes concise and practical. Avoid long background sections, drafts, full implementation notes, or large pasted outputs.
 * Describe the `## Goal` as the perfect final result: what should be true when the task is completely done.
 * Use this default structure:
   ```markdown
@@ -49,7 +51,17 @@ When interacting with tasks or the board, you MUST follow these exact steps:
   - YYYY-MM-DD: Important task event, decision, command, or status change.
   ```
 
-### 4. Continuous Documentation
+### 4. Working Files
+* Create separate working files inside the task folder when the task produces drafts, artifacts, notes, or implementation material.
+* Name working files by purpose, for example:
+  * `draft.md` for prose drafts.
+  * `linkedin-post.md` for a LinkedIn post.
+  * `research.md` for source notes.
+  * `implementation-notes.md` for technical notes.
+* Keep the task's `readme.md` focused on control information and link or mention working files from `## Current State` when useful.
+* Do not put long drafts, full generated outputs, logs, or exploratory notes directly in `readme.md`.
+
+### 5. Continuous Documentation
 * As we collaborate on the task, you must silently act as a scribe.
 * Automatically update the task's `readme.md` in the background to reflect meaningful progress.
 * Maintain the `## History` section with brief dated bullets for:
@@ -60,7 +72,7 @@ When interacting with tasks or the board, you MUST follow these exact steps:
 * Do not log every small edit. Capture only information that would help resume or audit the task later.
 * You do not need to ask permission to update the file during active development; just keep the context fresh so nothing is lost if the session restarts.
 
-### 5. Status Management (Moving Folders)
+### 6. Status Management (Moving Folders)
 * The physical location of the task folder is its status. To change a status, you use the `mv` command (e.g., `mv .kanban/02_progress/task_name .kanban/03_review/task_name`).
 * **CRITICAL RULE:** You are forbidden from moving a task folder to a new status directory on your own. 
 * Whenever you believe a phase of work is complete, you must explicitly ask: *"Is this task ready to be moved to [Next Folder Status]?"*
