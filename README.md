@@ -75,6 +75,17 @@ Brief context needed to resume the task.
 
 The skill maintains the `## History` section as work progresses, recording meaningful decisions, status changes, important commands, and resolved issues without logging every small edit.
 
+## Working Files
+
+Keep `readme.md` as the task control file only: goal, current state, and history.
+
+Put drafts, research notes, generated content, implementation notes, and other artifacts in separate files inside the same task folder, for example:
+
+- `linkedin-post.md`
+- `draft.md`
+- `research.md`
+- `implementation-notes.md`
+
 ## License
 
 MIT
