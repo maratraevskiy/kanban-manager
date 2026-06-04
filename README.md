@@ -9,7 +9,7 @@ The skill teaches Codex to create and maintain a `.kanban/` directory with task 
 - `.kanban/03_review/`
 - `.kanban/04_done/`
 
-Each task lives in its own folder and contains a markdown file such as `readme.md` or `task.md` with the task description, requirements, definition of done, and work log.
+Each task lives in its own folder and contains a concise `readme.md` describing the perfect final result, the current state, and the task history.
 
 ## Install
 
@@ -54,7 +54,26 @@ What is the status of my kanban tasks?
 Move this task to review.
 ```
 
-When working on a task, the skill asks for the desired definition of done before code changes, keeps the task markdown updated with a work log, and asks before moving task folders between Kanban statuses.
+When working on a task, the skill keeps the task `readme.md` updated with concise history entries and asks before moving task folders between Kanban statuses.
+
+## Task README Format
+
+Task readmes are intentionally short and resumable:
+
+```markdown
+# Task Name
+
+## Goal
+A concise description of the perfect final result.
+
+## Current State
+Brief context needed to resume the task.
+
+## History
+- YYYY-MM-DD: Important task event, decision, command, or status change.
+```
+
+The skill maintains the `## History` section as work progresses, recording meaningful decisions, status changes, important commands, and resolved issues without logging every small edit.
 
 ## License
 

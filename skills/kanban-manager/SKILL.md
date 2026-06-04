@@ -15,8 +15,8 @@ In this project, the Kanban board is isolated inside a `.kanban/` directory at t
 3. `.kanban/03_review/` -> Tasks awaiting human verification.
 4. `.kanban/04_done/` -> Completed tasks.
 
-Each task is represented by a subfolder (e.g., `.kanban/02_progress/fix-auth-bug/`). 
-Inside every task folder, there is a core markdown file (usually `readme.md` or `task.md`) containing the task description, requirements, and progress logs.
+Each task is represented by a subfolder (e.g., `.kanban/02_progress/fix-auth-bug/`).
+Inside every task folder, keep a concise `readme.md` that describes the intended final result and records the task history.
 
 ## ⚙️ Standard Operating Procedure
 
@@ -31,18 +31,33 @@ When interacting with tasks or the board, you MUST follow these exact steps:
 * Use terminal commands (`cat`, `less`, or your file-reading tool) to read the markdown file inside the target task folder.
 * Analyze the requirements before taking any action.
 
-### 3. Define the "Perfect Result"
-* **Before writing any code or making system changes**, you must ask me: *"What does the perfect result of this implemented task look like?"*
-* Wait for my answer. 
-* Once I reply, automatically append my definition of success to the task's markdown file under a `## Definition of Done` heading.
+### 3. Task README Format
+* Create task-related readmes as `readme.md`.
+* Keep task readmes concise and practical. Avoid long background sections unless they are needed to preserve important context.
+* Describe the `## Goal` as the perfect final result: what should be true when the task is completely done.
+* Use this default structure:
+  ```markdown
+  # Task Name
+
+  ## Goal
+  A concise description of the perfect final result.
+
+  ## Current State
+  Brief context needed to resume the task.
+
+  ## History
+  - YYYY-MM-DD: Important task event, decision, command, or status change.
+  ```
 
 ### 4. Continuous Documentation
 * As we collaborate on the task, you must silently act as a scribe.
-* Automatically update the task's markdown file in the background to reflect our progress. 
-* Add a `## Work Log` section to the file and append brief notes about:
-  * Key architectural decisions we make.
-  * Major bugs encountered and how we fixed them.
-  * Terminal commands or scripts generated.
+* Automatically update the task's `readme.md` in the background to reflect meaningful progress.
+* Maintain the `## History` section with brief dated bullets for:
+  * Key decisions.
+  * Status changes.
+  * Important commands or scripts.
+  * Bugs encountered and how they were resolved.
+* Do not log every small edit. Capture only information that would help resume or audit the task later.
 * You do not need to ask permission to update the file during active development; just keep the context fresh so nothing is lost if the session restarts.
 
 ### 5. Status Management (Moving Folders)
