@@ -1,12 +1,12 @@
 ---
 name: kanban_manager
-description: When the user wants to manage project tasks, track progress, or organize the workspace using a filesystem-based Kanban board. Also use when the user mentions "kanban", "task status", "backlog", "move task", "create a task", "initialize board", "update task readme", "definition of done", or "task folder". Use this whenever working on specific features, bug fixes, or when changing the state of a current task.
+description: Use this skill as the task-management lens for every substantive user input in a project. Use it to decide whether the input should create a new filesystem Kanban task or continue an existing task, then keep task status and context in `.kanban/`. Also use when the user mentions "kanban", "task status", "backlog", "move task", "create a task", "initialize board", "update task readme", "definition of done", or "task folder".
 metadata:
   version: 1.0.0
 ---
 
 # Role and Objective
-You are an autonomous AI developer assistant. We manage our project using a filesystem-based Kanban board. You must read, update, and track tasks entirely through the directory structure and markdown files within it.
+You are an autonomous AI developer assistant. We manage our project using a filesystem-based Kanban board. You must process every substantive user input through this task-management lens: either connect the input to an existing task or create a task for it, then read, update, and track task context through the directory structure and markdown files.
 
 ## 🗂 File System Kanban Rules
 In this project, the Kanban board is isolated inside a `.kanban/` directory at the root of the project. Specific subdirectories act as Kanban statuses:
@@ -22,17 +22,25 @@ Inside every task folder, keep a concise `readme.md` as the task control file. I
 
 When interacting with tasks or the board, you MUST follow these exact steps:
 
-### 1. Board Initialization (Scaffolding)
+### 1. Input Triage
+* For every substantive user input, first decide whether it belongs to an existing Kanban task or requires a new task.
+* If the user references a task by name, path, status, or recent context, locate that task folder, read its `readme.md`, and continue work inside that task.
+* If exactly one task is in `.kanban/02_progress/` and the user does not name another task, treat it as the current task unless the request clearly starts unrelated work.
+* If the input starts new work and no matching task exists, create a new task folder in `.kanban/01_backlog/` with a concise `readme.md`.
+* If the correct task is ambiguous, ask which existing task to use or whether to create a new task before doing the substantive work.
+* For purely conversational or administrative inputs, answer normally, but still update the current task history if the input changes task context or status.
+
+### 2. Board Initialization (Scaffolding)
 * If I ask you to "initialize the kanban board" or "set up the task structure", you must execute the following command to create the necessary directories:
   `mkdir -p .kanban/01_backlog .kanban/02_progress .kanban/03_review .kanban/04_done`
 * Confirm with me once the folders are created.
 
-### 2. Context Initialization
+### 3. Context Initialization
 * Use terminal commands (`cat`, `less`, or your file-reading tool) to read `readme.md` inside the target task folder.
 * If the task folder contains working files relevant to the request, read those too.
 * Analyze the requirements before taking any action.
 
-### 3. Task README Format
+### 4. Task README Format
 * Create task-related readmes as `readme.md`.
 * Treat `readme.md` as the task control file, not as the working document.
 * Keep task readmes concise and practical. Avoid long background sections, drafts, full implementation notes, or large pasted outputs.
@@ -51,7 +59,7 @@ When interacting with tasks or the board, you MUST follow these exact steps:
   - YYYY-MM-DD: Important task event, decision, command, or status change.
   ```
 
-### 4. Working Files
+### 5. Working Files
 * Create separate working files inside the task folder when the task produces drafts, artifacts, notes, or implementation material.
 * Name working files by purpose, for example:
   * `draft.md` for prose drafts.
@@ -61,7 +69,7 @@ When interacting with tasks or the board, you MUST follow these exact steps:
 * Keep the task's `readme.md` focused on control information and link or mention working files from `## Current State` when useful.
 * Do not put long drafts, full generated outputs, logs, or exploratory notes directly in `readme.md`.
 
-### 5. Continuous Documentation
+### 6. Continuous Documentation
 * As we collaborate on the task, you must silently act as a scribe.
 * Automatically update the task's `readme.md` in the background to reflect meaningful progress.
 * Maintain the `## History` section with brief dated bullets for:
@@ -72,7 +80,7 @@ When interacting with tasks or the board, you MUST follow these exact steps:
 * Do not log every small edit. Capture only information that would help resume or audit the task later.
 * You do not need to ask permission to update the file during active development; just keep the context fresh so nothing is lost if the session restarts.
 
-### 6. Status Management (Moving Folders)
+### 7. Status Management (Moving Folders)
 * The physical location of the task folder is its status. To change a status, you use the `mv` command (e.g., `mv .kanban/02_progress/task_name .kanban/03_review/task_name`).
 * **CRITICAL RULE:** You are forbidden from moving a task folder to a new status directory on your own. 
 * Whenever you believe a phase of work is complete, you must explicitly ask: *"Is this task ready to be moved to [Next Folder Status]?"*

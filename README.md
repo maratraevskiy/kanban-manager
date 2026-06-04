@@ -13,34 +13,108 @@ Each task lives in its own folder and contains a concise `readme.md` describing 
 
 ## Install
 
-Install for your Codex user profile:
+You can install this skill globally for every project or locally for one project.
+
+### Step 1. Clone This Repository
+
+Choose a place where you keep downloaded tools, then clone the repo:
 
 ```bash
+mkdir -p ~/Developer
+cd ~/Developer
+git clone https://github.com/maratraevskiy/kanban-manager.git
+cd kanban-manager
+```
+
+### Step 2A. Install Globally For Codex
+
+Use this if you want the skill available in Codex across your projects:
+
+```bash
+cd ~/Developer/kanban-manager
 mkdir -p ~/.codex/skills
 cp -R skills/kanban-manager ~/.codex/skills/kanban-manager
 ```
 
-Or install only for a specific project:
+Restart Codex after installing so the skill is picked up.
+
+### Step 2B. Install Globally For Claude
+
+Use this if you want the skill available in Claude Code across your projects:
+
+```bash
+cd ~/Developer/kanban-manager
+mkdir -p ~/.claude/skills
+cp -R skills/kanban-manager ~/.claude/skills/kanban-manager
+```
+
+Claude Code watches existing skill directories for changes. Restart Claude Code if `~/.claude/skills` did not exist when the session started.
+
+### Step 2C. Install Locally For One Project
+
+Use this if you want the skill available only inside one project.
+
+First, go to your project folder:
+
+```bash
+cd /path/to/your/project
+```
+
+For Codex:
 
 ```bash
 mkdir -p .agents/skills
-cp -R skills/kanban-manager .agents/skills/kanban-manager
+cp -R ~/Developer/kanban-manager/skills/kanban-manager .agents/skills/kanban-manager
 ```
 
-Restart Codex after installing so the skill is picked up.
-
-## Install From GitHub
-
-Codex can also install this skill directly from GitHub:
+For Claude Code:
 
 ```bash
-install-skill-from-github.py --repo maratraevskiy/kanban-manager --path skills/kanban-manager
+mkdir -p .claude/skills
+cp -R ~/Developer/kanban-manager/skills/kanban-manager .claude/skills/kanban-manager
 ```
 
-If your Codex environment exposes the built-in skill installer, ask Codex:
+### Updating An Existing Install
+
+Go to the cloned repository and pull the latest version:
+
+```bash
+cd ~/Developer/kanban-manager
+git pull
+```
+
+Then copy the skill folder again to the same destination you used before.
+
+### Troubleshooting
+
+If you see this error:
 
 ```text
-Install the skill from github.com/maratraevskiy/kanban-manager/tree/main/skills/kanban-manager
+cp: skills/kanban-manager: No such file or directory
+```
+
+You are probably not inside the cloned repository. Run:
+
+```bash
+cd ~/Developer/kanban-manager
+```
+
+Then run the install command again.
+
+### Uninstall
+
+Remove the installed skill folder.
+
+For Codex global install:
+
+```bash
+rm -rf ~/.codex/skills/kanban-manager
+```
+
+For Claude global install:
+
+```bash
+rm -rf ~/.claude/skills/kanban-manager
 ```
 
 ## Usage
