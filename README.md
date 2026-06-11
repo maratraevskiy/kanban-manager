@@ -18,7 +18,6 @@ It helps the agent create and maintain a `.kanban/` directory with task folders 
 Use `npx skills` to install the skill directly:
 
 ```bash
-# Install all skills
 npx skills add maratraevskiy/kanban-manager
 ```
 
