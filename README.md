@@ -20,12 +20,6 @@ Use `npx skills` to install the skill directly:
 ```bash
 # Install all skills
 npx skills add maratraevskiy/kanban-manager
-
-# List available skills
-npx skills add maratraevskiy/kanban-manager --list
-
-# Install this skill explicitly
-npx skills add maratraevskiy/kanban-manager --skill kanban_manager
 ```
 
 This installs the skill into your `.agents/skills/` directory.
