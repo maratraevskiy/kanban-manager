@@ -1,93 +1,115 @@
 ---
 name: kanban_manager
-description: Use this skill as the task-management lens for every substantive user input in a project. Use it to explicitly decide whether the input should create a new filesystem Kanban task, update an existing task, or stay conversational, then keep task status and context in `.kanban/`. Also use when the user mentions "kanban", "task status", "backlog", "review", "done", "move task", "create a task", "initialize board", "update task readme", "definition of done", or "task folder".
+description: Use this skill as the task-management lens for every substantive user input in a project. Use it to decide whether input creates a filesystem Kanban task, updates an existing task, or stays conversational, then maintain task status and context in `.kanban/`. Also use when the user mentions kanban, task status, backlog, review, done, moving or creating tasks, initializing the board, task readmes, definition of done, or task folders.
 metadata:
   version: 1.0.0
 ---
 
 # Role and Objective
-You are an autonomous AI developer assistant. We manage our project using a filesystem-based Kanban board. You must process every substantive user input through this task-management lens: explicitly decide whether the input should create a new task, update an existing task, or remain conversational only, then read, update, and track task context through the directory structure and markdown files.
+You are an autonomous AI developer assistant using a filesystem Kanban board. For every substantive user input, explicitly decide whether it creates a new task, updates an existing task, or remains conversational only. Then read, update, and track task context through `.kanban/`.
 
-## 🗂 File System Kanban Rules
-In this project, the Kanban board is isolated inside a `.kanban/` directory at the root of the project. Specific subdirectories act as Kanban statuses:
-1. `.kanban/01_backlog/` -> New, changed, or waiting tasks that need triage or pickup.
+## Kanban Board
+The only valid board is one `.kanban/` directory at the level-1 workspace root: the top directory the user opened for the overall project, not a nested repository, package, app, or subfolder.
+
+Statuses are physical folders:
+1. `.kanban/01_backlog/` -> New, changed, or waiting tasks needing triage or pickup.
 2. `.kanban/02_progress/` -> Tasks currently being worked on.
 3. `.kanban/03_review/` -> Tasks awaiting human verification.
 4. `.kanban/04_done/` -> Completed tasks.
 
-Each task is represented by a subfolder (e.g., `.kanban/02_progress/fix-auth-bug/`).
-Inside every task folder, keep a concise `readme.md` as the task control file. It should contain only the task goal, current state, and history. Put drafts, research notes, generated content, implementation notes, and other working artifacts in separate files within the same task folder.
+Do not create or use nested boards such as `<repo>/.kanban/`, `<app>/.kanban/`, or `<package>/.kanban/`. If multiple `.kanban/` directories exist and the level-1 board is not clearly canonical, stop and ask which one to use.
 
-## ⚙️ Standard Operating Procedure
+Each task is a subfolder inside a status folder. Its `readme.md` is the concise control file for goal, state, and history. Drafts, research, plans, specs, generated content, logs, and implementation notes belong in separate files in the same task folder.
 
-When interacting with tasks or the board, you MUST follow these exact steps:
+## Task Triage
+* Start every substantive response with a visible task decision, such as `Task check: this updates <task>` or `Task check: no matching task found.`
+* For every substantive input, decide whether it updates an existing task, starts a new task, or stays conversational only.
+* If the user references a task by name, path, status, or recent context, search all status folders, read its `readme.md`, and continue in that task.
+* If exactly one task is in `.kanban/02_progress/` and the user names no other task, treat it as current unless the request clearly starts unrelated work.
+* If project work has no selected or matching task, ask whether to create a new task or update an existing one before doing substantive work.
+* After confirmation, create new task folders in `.kanban/01_backlog/` unless the user explicitly chooses another status.
+* If the correct task is ambiguous, ask which task to use or whether to create a new one.
+* For conversational or administrative input, answer normally, but update the current task history if the input changes task context or status.
 
-### 1. Input Triage
-* For every substantive user input, first decide whether it belongs to an existing Kanban task, requires a new task, or should remain conversational only.
-* At the start of every substantive response, make the task-management decision visible with a short note such as "Task check: this updates `<task>`" or "Task check: no matching task found."
-* If no task is explicitly selected and the input could reasonably be project work, ask whether to create a new task or update an existing task before doing the substantive work.
-* If the user references a task by name, path, status, or recent context, search every status folder including `.kanban/01_backlog/`, `.kanban/02_progress/`, `.kanban/03_review/`, and `.kanban/04_done/`; locate that task folder, read its `readme.md`, and continue work inside that task.
-* If exactly one task is in `.kanban/02_progress/` and the user does not name another task, treat it as the current task unless the request clearly starts unrelated work.
-* If the input starts new work and no matching task exists, ask whether to create a new task. After confirmation, create a new task folder in `.kanban/01_backlog/` with a concise `readme.md` unless the user explicitly chooses another status.
-* If the correct task is ambiguous, ask which existing task to use or whether to create a new task before doing the substantive work.
-* For purely conversational or administrative inputs, answer normally, but still update the current task history if the input changes task context or status.
-* Do not skip the task check just because the user did not use task-management words. Most project instructions, bug reports, feature ideas, writing requests, design requests, research requests, and follow-ups can be tasks.
+## New Task Consent and Brainstorming
+* After creating a task, do not implement it without explicit user consent, whether or not plans or specs exist.
+* After creating a task, ask whether the user wants help brainstorming implementation details.
+* If the user declines brainstorming, continue normal task handling.
+* If accepted, ask one question at a time. Each question must build on previous answers and work toward a developer- or agent-ready specification.
+* Ask 5-15 questions total. Stop after 5 only when the spec is clearly implementation-ready; exceed 15 only if the user explicitly asks to continue.
+* Focus questions on goals, users, scope, constraints, data, interfaces, edge cases, errors, rollout, and testing.
+* When complete, compile findings into `implementation-spec.md` with requirements, architecture choices, data handling, error handling, and a testing plan. Mention it from `readme.md` `## Current State`.
 
-### 2. Board Initialization (Scaffolding)
-* If I ask you to "initialize the kanban board" or "set up the task structure", you must execute the following command to create the necessary directories:
-  `mkdir -p .kanban/01_backlog .kanban/02_progress .kanban/03_review .kanban/04_done`
-* Confirm with me once the folders are created.
+## Plan Mode
+If you are in Plan Mode and the user asks you to plan project work:
+* Search all status folders for a corresponding task unless one is already selected.
+* Include the Kanban task action inside the proposed plan.
+* If no matching task exists, plan to create a task folder and write the plan to `initial-implementation-plan.md`.
+* If a matching task exists, plan to update the task and add or update `updates-plan.md`.
+* Do not create or edit task files while still in Plan Mode. Plan the Kanban updates only.
+* Mention `readme.md` updates only as brief current-state and history changes.
 
-### 3. Context Initialization
-* Use terminal commands (`cat`, `less`, or your file-reading tool) to read `readme.md` inside the target task folder.
-* If the task folder contains working files relevant to the request, read those too.
-* Analyze the requirements before taking any action.
+## Board Initialization
+If the user asks to initialize the board or set up the task structure, run this from the level-1 workspace root only:
 
-### 4. Task README Format
-* Create task-related readmes as `readme.md`.
-* Treat `readme.md` as the task control file, not as the working document.
-* Keep task readmes concise and practical. Avoid long background sections, drafts, full implementation notes, or large pasted outputs.
-* Describe the `## Goal` as the perfect final result: what should be true when the task is completely done.
-* Use this default structure:
-  ```markdown
-  # Task Name
+```bash
+mkdir -p .kanban/01_backlog .kanban/02_progress .kanban/03_review .kanban/04_done
+```
 
-  ## Goal
-  A concise description of the perfect final result.
+Confirm once the folders are created.
 
-  ## Current State
-  Brief context needed to resume the task.
+## Task Files
+Before working on a task, read its `readme.md` and any relevant working files.
 
-  ## History
-  - YYYY-MM-DD: Important task event, decision, command, or status change.
-  ```
+Use this default `readme.md` format:
 
-### 5. Working Files
-* Create separate working files inside the task folder when the task produces drafts, artifacts, notes, or implementation material.
-* Name working files by purpose, for example:
-  * `draft.md` for prose drafts.
-  * `linkedin-post.md` for a LinkedIn post.
-  * `research.md` for source notes.
-  * `implementation-notes.md` for technical notes.
-* Keep the task's `readme.md` focused on control information and link or mention working files from `## Current State` when useful.
-* Do not put long drafts, full generated outputs, logs, or exploratory notes directly in `readme.md`.
+```markdown
+# Task Name
 
-### 6. Continuous Documentation
-* As we collaborate on the task, you must silently act as a scribe.
-* Automatically update the task's `readme.md` in the background to reflect meaningful progress.
-* Maintain the `## History` section with brief dated bullets for:
-  * Key decisions.
-  * Status changes.
-  * Important commands or scripts.
-  * Bugs encountered and how they were resolved.
-* Do not log every small edit. Capture only information that would help resume or audit the task later.
-* You do not need to ask permission to update the file during active development; just keep the context fresh so nothing is lost if the session restarts.
+## Goal
+A concise description of the perfect final result.
 
-### 7. Status Management (Moving Folders)
-* The physical location of the task folder is its status. To change a status, you use the `mv` command (e.g., `mv .kanban/02_progress/task_name .kanban/03_review/task_name`).
-* **CRITICAL RULE:** You are forbidden from moving a task folder to a new status directory on your own. 
-* Whenever you believe a phase of work is complete, you must explicitly ask: *"Is this task ready to be moved to [Next Folder Status]?"*
-* Only execute the `mv` command after I give you explicit confirmation.
-* If the matched task is in `.kanban/03_review/` and the user changes requirements, reports an issue, or asks for more implementation work, note that the task is currently in review and ask whether to move it back to `.kanban/02_progress/`.
-* If the matched task is in `.kanban/04_done/` and the user changes requirements, reports a regression, or asks to reopen it, note that the task is currently done and ask whether to move it to `.kanban/02_progress/` for immediate work or `.kanban/01_backlog/` for re-triage.
-* If the matched task is in `.kanban/04_done/` but the input is only a question or historical reference, leave it in done and answer from the task context.
+## Current State
+Brief context needed to resume the task.
+
+## History
+- YYYY-MM-DD: Important task event, decision, command, or status change.
+```
+
+Keep `readme.md` concise. Do not put long drafts, full generated outputs, logs, exploratory notes, or full implementation details there. Link or mention working files from `## Current State` when useful.
+
+Use separate working files by purpose, for example:
+* `draft.md`
+* `research.md`
+* `implementation-notes.md`
+* `implementation-spec.md`
+* `initial-implementation-plan.md`
+* `updates-plan.md`
+* `final-implementation.md`
+
+If the user asks for separate implementation docs, maintain:
+* `initial-implementation-plan.md` before implementation begins.
+* `updates-plan.md` after the first implementation iteration and review.
+* `final-implementation.md` when the task is done, summarizing final behavior, changed files, verification, and latest context.
+
+## Continuous Documentation
+As collaboration progresses, silently keep the task `readme.md` fresh. Log only resume-worthy details:
+* Key decisions.
+* Status changes.
+* Important commands or scripts.
+* Bugs encountered and resolutions.
+
+Do not log every small edit.
+
+## Status Management
+The task folder location is its status. Move status with `mv`, for example:
+
+```bash
+mv .kanban/02_progress/task_name .kanban/03_review/task_name
+```
+
+Critical rule: never move a task folder to a new status on your own. When a phase appears complete, ask exactly: `Is this task ready to be moved to [Next Folder Status]?` Move it only after explicit confirmation.
+
+If a matched task is in `.kanban/03_review/` and the user changes requirements, reports an issue, or asks for more implementation work, say it is in review and ask whether to move it back to `.kanban/02_progress/`.
+
+If a matched task is in `.kanban/04_done/` and the user changes requirements, reports a regression, or asks to reopen it, say it is done and ask whether to move it to `.kanban/02_progress/` for immediate work or `.kanban/01_backlog/` for re-triage. If the input is only a question or historical reference, leave it in done and answer from task context.
