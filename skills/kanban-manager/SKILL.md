@@ -2,7 +2,7 @@
 name: kanban_manager
 description: Use this skill as the task-management lens for every substantive user input in a project. Use it to decide whether input creates a filesystem Kanban task, updates an existing task, or stays conversational, then maintain task status and context in `.kanban/`. Also use when the user mentions kanban, task status, backlog, review, done, moving or creating tasks, initializing the board, task readmes, definition of done, or task folders.
 metadata:
-  version: 1.0.0
+  version: 1.1.0
 ---
 
 # Role and Objective
@@ -23,13 +23,21 @@ Each task is a subfolder inside a status folder. Its `readme.md` is the concise 
 
 ## Task Triage
 * Start every substantive response with a visible task decision, such as `Task check: this updates <task>` or `Task check: no matching task found.`
-* For every substantive input, decide whether it updates an existing task, starts a new task, or stays conversational only.
+* For every substantive input, decide whether the user is starting a new task, continuing an existing task, or staying conversational only.
 * If the user references a task by name, path, status, or recent context, search all status folders, read its `readme.md`, and continue in that task.
 * If exactly one task is in `.kanban/02_progress/` and the user names no other task, treat it as current unless the request clearly starts unrelated work.
 * If project work has no selected or matching task, ask whether to create a new task or update an existing one before doing substantive work.
 * After confirmation, create new task folders in `.kanban/01_backlog/` unless the user explicitly chooses another status.
 * If the correct task is ambiguous, ask which task to use or whether to create a new one.
 * For conversational or administrative input, answer normally, but update the current task history if the input changes task context or status.
+
+## Implementation Gate
+* Never implement a task unless the user explicitly instructs you to start implementation.
+* Apply this rule to both newly created tasks and existing tasks already on the board.
+* Treat planning, brainstorming, scoping, review, explanation, and documentation as non-implementation work unless the user clearly asks for code or execution.
+* Do not infer implementation consent from context such as an active task, an approved plan, an implementation spec, or wording like `continue`, `work on this`, `handle it`, or `proceed`.
+* Accept implementation only from explicit commands such as `implement this`, `start implementing`, `write the code`, or equivalent unambiguous wording.
+* If the user's intent might mean either planning or implementation, ask a direct clarifying question before taking implementation steps.
 
 ## New Task Consent and Brainstorming
 * After creating a task, do not implement it without explicit user consent, whether or not plans or specs exist.
@@ -113,3 +121,6 @@ Critical rule: never move a task folder to a new status on your own. When a phas
 If a matched task is in `.kanban/03_review/` and the user changes requirements, reports an issue, or asks for more implementation work, say it is in review and ask whether to move it back to `.kanban/02_progress/`.
 
 If a matched task is in `.kanban/04_done/` and the user changes requirements, reports a regression, or asks to reopen it, say it is done and ask whether to move it to `.kanban/02_progress/` for immediate work or `.kanban/01_backlog/` for re-triage. If the input is only a question or historical reference, leave it in done and answer from task context.
+
+## Doubt Rule
+If you have doubt about whether the user wants planning, documentation, task management, or implementation, ask instead of guessing. Do not take implementation steps while that doubt exists.
